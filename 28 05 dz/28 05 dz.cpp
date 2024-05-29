@@ -1,7 +1,21 @@
 ﻿#include <iostream>
 #include <cstdlib> 
 #include <ctime> 
+#include <thread> 
+#include <chrono> 
+
 using namespace std;
+
+void simulateDelay(double percentage, int maxDuration) {
+    int delay = static_cast<int>(maxDuration * (percentage / 100.0));
+    this_thread::sleep_for(chrono::milliseconds(delay));
+}
+
+void showProgress(int progress) {
+    cout << "|--------------------------------------------|\n";
+    cout << "Progress: " << progress << "%" << endl;
+    simulateDelay(100, 500); 
+}
 
 class PowerSupply {
 public:
@@ -33,6 +47,7 @@ private:
         else {
             cout << "Неуспешно.\n";
         }
+        simulateDelay(rand() % 100, 500);
     }
 };
 
@@ -63,6 +78,7 @@ private:
         else {
             cout << "Неуспешно.\n";
         }
+        simulateDelay(rand() % 100, 500);
     }
 };
 
@@ -96,6 +112,7 @@ private:
         else {
             cout << "Неуспешно.\n";
         }
+        simulateDelay(rand() % 100, 500);
     }
 };
 
@@ -120,6 +137,7 @@ private:
         else {
             cout << "Неуспешно.\n";
         }
+        simulateDelay(rand() % 100, 500);
     }
 };
 
@@ -144,6 +162,7 @@ private:
         else {
             cout << "Неуспешно.\n";
         }
+        simulateDelay(rand() % 100, 500);
     }
 };
 
@@ -168,6 +187,7 @@ private:
         else {
             cout << "Неуспешно.\n";
         }
+        simulateDelay(rand() % 100, 500);
     }
 };
 
@@ -182,22 +202,29 @@ private:
 
 public:
     ComputerFacade() {
-        srand(static_cast<unsigned>(time(0)));
+        srand(static_cast<unsigned>(time(0))); 
     }
 
     void beginWork() {
+        showProgress(25);
         powerSupply.supplyPower();
         sensors.checkVoltage();
         sensors.checkPowerSupplyTemperature();
         sensors.checkGPUTemperature();
+
+        showProgress(50);
         powerSupply.supplyPowerToGPU();
         gpu.start();
         gpu.checkConnection();
         sensors.checkRAMTemperature();
+
+        showProgress(75);
         powerSupply.supplyPowerToRAM();
         ram.start();
         ram.analyzeMemory();
         gpu.displayRAMData();
+
+        showProgress(100);
         powerSupply.supplyPowerToDiskDrive();
         diskDrive.start();
         diskDrive.checkDisk();
@@ -210,22 +237,31 @@ public:
     }
 
     void shutdown() {
+        showProgress(25);
         hardDrive.stop();
         ram.clearMemory();
+
+        showProgress(50);
         ram.analyzeMemory();
         gpu.displayFarewellMessage();
+
+        showProgress(75);
         diskDrive.returnToInitialPosition();
+        powerSupply.supplyPowerToGPU();
+        powerSupply.supplyPowerToRAM();
+
+        showProgress(100);
+        powerSupply.stopPower();
+        sensors.checkVoltage();
         powerSupply.stopPower();
     }
 };
 
 int main() {
     system("chcp 1251");
-
     ComputerFacade computer;
     cout << "Запуск компьютера:\n";
     computer.beginWork();
-
     cout << "\nВыключение компьютера:\n";
     computer.shutdown();
 
